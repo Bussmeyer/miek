@@ -1,3 +1,4 @@
+#!/bin/bash
 sudo apt-get update -y
 sudo apt-get install -y alsa-utils mpg123 mpd mpc python-dev python-rpi.gpio python-mpd python-pyudev
 
