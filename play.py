@@ -1,20 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+import subprocess
 from time import sleep
 import RPi.GPIO as GPIO
 
+PLAY = 25
+
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(25, GPIO.IN)
+GPIO.setup(PLAY, GPIO.IN)
+	
+def main():
+    timebuttonisstillpressed = 0
 
-print ("Taster drücken, um Ton abzuspielen, CTRL+C beendet das Programm.")
-
-try:
     while True:
-        if (GPIO.input(25) == True):
-            print("Gedrückt. Yes!")
-            os.system('mpg123 -q tests/1000Hz-5sec.mp3 &')
-        sleep(0.1);
-except KeyboardInterrupt:
-    GPIO.cleanup()
+        if GPIO.input(PLAY) == True:
+            if timebuttonisstillpressed == 0:
+                print("Play. Yes!")
+                subprocess.Popen(['mpg123', 'music/01.mp3'])
+        
+            elif timebuttonisstillpressed > 2:
+                subprocess.call(['killall', 'mpg123'])
+                print("Stop.")
+                timebuttonisstillpressed = 0
+            timebuttonisstillpressed = timebuttonisstillpressed + 0.1
+        else:
+            timebuttonisstillpressed = 0
+
+        sleep(0.2);
+
+if __name__ == "__main__":
+    try:
+        print ("Taster drücken, um Ton abzuspielen, CTRL+C beendet das Programm.")
+        main()
+    except KeyboardInterrupt:
+        GPIO.cleanup()
