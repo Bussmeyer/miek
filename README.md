@@ -12,4 +12,5 @@
 @see https://learn.adafruit.com/playing-sounds-and-using-buttons-with-raspberry-pi/overview
 @see http://www.crateandbarrel.com/tondo-5.75-bowl/s534900
 @see http://www.dronkert.net/rpi/vol.html
+@see http://pythonhosted.org/python-mpd2/topics/commands.html
 
