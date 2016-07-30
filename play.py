@@ -14,7 +14,7 @@ def main():
     timebuttonisstillpressed = 0
 
     while True:
-        if GPIO.input(PLAY) == True:
+        if GPIO.input(PLAY) == False:
             if timebuttonisstillpressed == 0:
                 print("Play. Yes!")
                 subprocess.Popen(['mpg123', 'music/01.mp3'])
