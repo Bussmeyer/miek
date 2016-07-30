@@ -5,33 +5,54 @@ import subprocess
 from time import sleep
 import RPi.GPIO as GPIO
 
-PLAY = 25
+from mpd import (MPDClient, CommandError)
+from socket import error as SocketError
+from time import sleep
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(PLAY, GPIO.IN)
-	
+PREVIOUS = 25
+PLAY = 24
+NEXT = 23
+LIBRARY = 'music/'
+
+isPlaying = False
+
 def main():
-    timebuttonisstillpressed = 0
+    initGPIO()
+    print ("Starting player ...")
+    print ("Taste drücken, um Ton abzuspielen, CTRL+C beendet das Programm.")
 
     while True:
-        if GPIO.input(PLAY) == False:
-            if timebuttonisstillpressed == 0:
-                print("Play. Yes!")
-                subprocess.Popen(['mpg123', 'music/01.mp3'])
-        
-            elif timebuttonisstillpressed > 2:
-                subprocess.call(['killall', 'mpg123'])
-                print("Stop.")
-                timebuttonisstillpressed = 0
-            timebuttonisstillpressed = timebuttonisstillpressed + 0.1
-        else:
-            timebuttonisstillpressed = 0
+        if GPIO.input(PLAY) == True:
+            if isPlaying == True:
+                stop()
+            elif isPlaying == False:
+                play('tests/440Hz-5sec.mp3')
 
-        sleep(0.2);
+        sleep(0.1);
+
+def initGPIO():
+    print("Initializing GPIO pins ...")
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(PREVIOUS, GPIO.IN)
+    GPIO.setup(PLAY, GPIO.IN)
+    GPIO.setup(NEXT, GPIO.IN)
+
+def play(song):
+    global isPlaying
+
+    subprocess.Popen(['mpg123', '-q', song])
+    isPlaying = True
+    print("Play")
+
+def stop():
+    global isPlaying
+
+    subprocess.call(['killall', 'mpg123'])
+    isPlaying = False
+    print("Stop")
 
 if __name__ == "__main__":
     try:
-        print ("Taster drücken, um Ton abzuspielen, CTRL+C beendet das Programm.")
         main()
     except KeyboardInterrupt:
         GPIO.cleanup()
