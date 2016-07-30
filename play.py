@@ -1,32 +1,51 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import subprocess
-from time import sleep
 import RPi.GPIO as GPIO
+import os
 
+from time import sleep
 from mpd import (MPDClient, CommandError)
 from socket import error as SocketError
-from time import sleep
 
+# Configure MPD connection settings
+HOST = 'localhost'
+PORT = '6600'
+CON_ID = {'host':HOST, 'port':PORT}
+
+# Configure IO ports
 PREVIOUS = 25
 PLAY = 24
 NEXT = 23
-LIBRARY = 'music/'
-
-isPlaying = False
 
 def main():
     initGPIO()
+
+    client = MPDClient()
+    mpdConnect(client, CON_ID)
+    client.update()
+    client.clear()
+    os.system("mpc ls | mpc add")
+    print client.playlist()
+
     print ("Starting player ...")
     print ("Taste drücken, um Ton abzuspielen, CTRL+C beendet das Programm.")
 
     while True:
         if GPIO.input(PLAY) == True:
-            if isPlaying == True:
-                stop()
-            elif isPlaying == False:
-                play('tests/440Hz-5sec.mp3')
+            if client.status()["state"] == "stop":
+                client.play()
+                print client.currentsong()
+            else:
+                client.pause()
+
+        if GPIO.input(PREVIOUS) == True:
+            client.previous()
+            print client.currentsong()
+
+        if GPIO.input(NEXT) == True:
+            client.next()
+            print client.currentsong()
 
         sleep(0.1);
 
@@ -37,19 +56,15 @@ def initGPIO():
     GPIO.setup(PLAY, GPIO.IN)
     GPIO.setup(NEXT, GPIO.IN)
 
-def play(song):
-    global isPlaying
-
-    subprocess.Popen(['mpg123', '-q', song])
-    isPlaying = True
-    print("Play")
-
-def stop():
-    global isPlaying
-
-    subprocess.call(['killall', 'mpg123'])
-    isPlaying = False
-    print("Stop")
+def mpdConnect(client, con_id):
+    """
+    Simple wrapper to connect MPD.
+    """
+    try:
+            client.connect(**con_id)
+    except SocketError:
+            return False
+    return True
 
 if __name__ == "__main__":
     try:
