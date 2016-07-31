@@ -14,3 +14,8 @@
 @see http://www.dronkert.net/rpi/vol.html
 @see http://pythonhosted.org/python-mpd2/topics/commands.html
 @see http://freespecialeffects.co.uk/soundfx/cartoon/rise1.wav
+
+
+## Code quality
+* https://github.com/mark-me/Pi-Jukebox/blob/4a7f29cf87563e2e9f51e89313ef35ac9f950f79/mpd_client.py
+* https://github.com/Mic92/python-mpd2/issues/31
