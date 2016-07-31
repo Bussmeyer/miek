@@ -75,12 +75,11 @@ def andNowWaitForButtonClicksAndHandleThem():
 def handleButtonClick(client, song):
     with connectionToMpdServer():
         status = client.status()["state"]
-        currentsong = client.currentsong()["pos"]
 
         if (status == "play" or status == "pause"):
-            if currentsong == song:
+            if client.currentsong()["pos"] == song:
                 client.pause()
-            elif currentsong != song:
+            elif client.currentsong()["pos"] != song:
                 client.stop()
                 client.play(song)
         elif status == "stop":

@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+### BEGIN INIT INFO
+# Provides:          player
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:     $local_fs $remote_fs
+# Should-Start:      autofs $network $named alsa-utils pulseaudio avahi-daemon
+# Should-Stop:       autofs $network $named alsa-utils pulseaudio avahi-daemon
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Simple script to start the player at boot
+### END INIT INFO
+
+/home/pi/miek/player.py &
