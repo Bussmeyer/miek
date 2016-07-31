@@ -27,16 +27,7 @@ def main():
     establishConnectionToMpdServer(client, CONNECTION_ID)
     updateAndLoadLatestsPlaylist(client)
     stopPlaybackAfterCurrentSong(client)
-
-    while True:
-        if GPIO.input(PLAY01) == True:
-            handleButtonClick(client, '0')
-        if GPIO.input(PLAY02) == True:
-            handleButtonClick(client, '1')
-        if GPIO.input(PLAY03) == True:
-            handleButtonClick(client, '2')
-
-        sleep(0.1);
+    andNowWaitForButtonClicksAndHandleThem(client)
 
 
 def initGPIO():
@@ -65,20 +56,28 @@ def updateAndLoadLatestsPlaylist(client):
 def stopPlaybackAfterCurrentSong(client):
     client.single(1)
 
+def andNowWaitForButtonClicksAndHandleThem(client):
+    while True:
+        if GPIO.input(PLAY01) == True:
+            handleButtonClick(client, '0')
+        if GPIO.input(PLAY02) == True:
+            handleButtonClick(client, '1')
+        if GPIO.input(PLAY03) == True:
+            handleButtonClick(client, '2')
+
+        sleep(0.1);
 
 def handleButtonClick(client, song):
     if (client.status()["state"] == "play" or client.status()["state"] == "pause"):
-        if client.currentsong()["pos"] != song:
-            print("not the same")
+        if client.currentsong()["pos"] == song:
+            client.pause()
+        elif client.currentsong()["pos"] != song:
             client.stop()
-
-    if client.status()["state"] == "stop":
+            client.play(song)
+    elif client.status()["state"] == "stop":
         client.play(song)
-        print client.currentsong()
     else:
-        client.pause()
-        print client.status()["state"]
-
+        print("Error")
 
 if __name__ == "__main__":
     try:
