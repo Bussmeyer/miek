@@ -9,88 +9,82 @@ from mpd import (MPDClient)
 from contextlib import contextmanager
 
 
-# Configure MPD connection settings
-HOST = 'localhost'
-PORT = '6600'
-client = MPDClient()
+class player:
 
-# Configure IO ports
-PLAY01 = 25
-PLAY02 = 24
-PLAY03 = 23
-CHANNEL_LIST = [PLAY01, PLAY02, PLAY03]
+    def __init__(self, channelList):
+        print ("Taste drücken, um Song abzuspielen, CTRL+C beendet das Programm.")
+        self.client = MPDClient()
+        # Configure MPD connection settings
+        self.host = 'localhost'
+        self.port = '6600'
+        self.initGPIO(channelList)
+        self.updateAndLoadLatestsPlaylist()
+        self.stopPlaybackAfterCurrentSong()
+        self.andNowWaitForButtonClicksAndHandleThem()
 
+    def initGPIO(channelList):
+        print("Initializing GPIO pins ...")
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(channelList, GPIO.IN)
 
-def main():
-    print ("Taste drücken, um Song abzuspielen, CTRL+C beendet das Programm.")
-    initGPIO()
-    updateAndLoadLatestsPlaylist()
-    stopPlaybackAfterCurrentSong()
-    andNowWaitForButtonClicksAndHandleThem()
+    @contextmanager
+    def connectionToMpdServer(self):
+        try:
+            self.client.connect(self.host, self.port)
+            yield
+        finally:
+            self.client.close()
+            self.client.disconnect()
 
+    def updateAndLoadLatestsPlaylist(self):
+        with self.connectionToMpdServer():
+            print('Loading playlist ...')
+            self.client.update()
+            self.client.clear()
+            os.system("mpc ls | mpc add")
+            print self.client.playlist()
+            print('--------------------')
 
-def initGPIO():
-    print("Initializing GPIO pins ...")
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(CHANNEL_LIST, GPIO.IN)
+    def stopPlaybackAfterCurrentSong(self):
+        with self.connectionToMpdServer():
+            self.client.single(1)
 
+    def andNowWaitForButtonClicksAndHandleThem(self):
+        while True:
+            if GPIO.input(PLAY01) == True:
+                self.handleButtonClick(self.client, '0')
+            if GPIO.input(PLAY02) == True:
+                self.handleButtonClick(self.client, '1')
+            if GPIO.input(PLAY03) == True:
+                self.handleButtonClick(self.client, '2')
 
-@contextmanager
-def connectionToMpdServer():
-    try:
-        client.connect(HOST, PORT)
-        yield
-    finally:
-        client.close()
-        client.disconnect()
+            sleep(0.1);
 
+    def handleButtonClick(self, client, song):
+        with self.connectionToMpdServer():
+            status = self.client.status()["state"]
 
-def updateAndLoadLatestsPlaylist():
-    with connectionToMpdServer():
-        print('Loading playlist ...')
-        client.update()
-        client.clear()
-        os.system("mpc ls | mpc add")
-        print client.playlist()
-        print('--------------------')
-
-
-def stopPlaybackAfterCurrentSong():
-    with connectionToMpdServer():
-        client.single(1)
-
-
-def andNowWaitForButtonClicksAndHandleThem():
-    while True:
-        if GPIO.input(PLAY01) == True:
-            handleButtonClick(client, '0')
-        if GPIO.input(PLAY02) == True:
-            handleButtonClick(client, '1')
-        if GPIO.input(PLAY03) == True:
-            handleButtonClick(client, '2')
-
-        sleep(0.1);
-
-
-def handleButtonClick(client, song):
-    with connectionToMpdServer():
-        status = client.status()["state"]
-
-        if (status == "play" or status == "pause"):
-            if client.currentsong()["pos"] == song:
-                client.pause()
-            elif client.currentsong()["pos"] != song:
-                client.stop()
-                client.play(song)
-        elif status == "stop":
-            client.play(song)
-        else:
-            print("Error")
+            if (status == "play" or status == "pause"):
+                if self.client.currentsong()["pos"] == song:
+                    self.client.pause()
+                elif self.client.currentsong()["pos"] != song:
+                    self.client.stop()
+                    self.client.play(song)
+            elif status == "stop":
+                self.client.play(song)
+            else:
+                print("Error")
 
 
 if __name__ == "__main__":
+    # Configure IO ports
+    PLAY01 = 25
+    PLAY02 = 24
+    PLAY03 = 23
+    CHANNEL_LIST = [PLAY01, PLAY02, PLAY03]
+
     try:
-        main()
+        player = player(CHANNEL_LIST)
     except KeyboardInterrupt:
         GPIO.cleanup()       # clean up GPIO on CTRL+C exit
     GPIO.cleanup()           # clean up GPIO on normal exit
