@@ -7,19 +7,24 @@ const int rxPinOnTheArduino = 10;
 const int txPinOnTheArduino = 11;
 const int volume            = 2;      //Set volume value. From 0 to 30
 const int activated         = LOW;
-const int buttonPlaylist01  = 2;      // the number of the pushbutton pin
-const int buttonPlaylist02  = 3;      // the number of the pushbutton pin
+const int buttonPlaylist1  = 2;      // the number of the pushbutton pin
+const int buttonPlaylist2  = 3;      // the number of the pushbutton pin
 
 
 SoftwareSerial mySoftwareSerial(rxPinOnTheArduino, txPinOnTheArduino); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
+
+int currentFolder = 1;
+int currentSong = 1;
 void printDetail(uint8_t type, int value);
+
+
 
 // Functions
 void setup()
 {
-  pinMode(buttonPlaylist01, INPUT_PULLUP);
-  pinMode(buttonPlaylist02, INPUT_PULLUP);
+  pinMode(buttonPlaylist1, INPUT_PULLUP);
+  pinMode(buttonPlaylist2, INPUT_PULLUP);
 
   mySoftwareSerial.begin(9600);
   Serial.begin(115200);
@@ -35,27 +40,47 @@ void setup()
     while(true);
   }
   Serial.println(F("DFPlayer Mini online."));
-  
+
+  myDFPlayer.setTimeOut(500); //Set serial communictaion time out 500ms
   myDFPlayer.volume(volume);  //Set volume value. From 0 to 30
+
+
+
+
+  // Check all the different folders
+  int songs1 = myDFPlayer.readFileCountsInFolder(1);
+  int songs2 = myDFPlayer.readFileCountsInFolder(2);
+  int songs3 = myDFPlayer.readFileCountsInFolder(3);
+
+  Serial.print(F("Songs in folder 01: "));
+  Serial.println(songs1);
+  Serial.print(F("Songs in folder 02: "));
+  Serial.println(songs2);
+  Serial.print(F("Songs in folder 03: "));
+  Serial.println(songs3);
+
+  
 }
 
 void loop()
 {
-  if  (digitalRead(buttonPlaylist01) == activated) {
+
+  if  (digitalRead(buttonPlaylist1) == activated) {
+    currentFolder = 1;
+    myDFPlayer.playLargeFolder(currentFolder, 1);
     Serial.println("Button 01 pressed");
-    myDFPlayer.play(1);  //Play the first mp3
+    Serial.println(myDFPlayer.readCurrentFileNumber());
   }
 
-  if  (digitalRead(buttonPlaylist02) == activated) {
+  if  (digitalRead(buttonPlaylist2) == activated) {
     Serial.println("Button 02 pressed");
-    myDFPlayer.play(2);  //Play the first mp3
+    currentFolder = 2;
+    myDFPlayer.playLargeFolder(currentFolder, 1);
+    Serial.println(myDFPlayer.readCurrentFileNumber());
   }
 
-  static unsigned long timer = millis();
-  if (millis() - timer > 3000) {
-    timer = millis();
-    myDFPlayer.next();  //Play next mp3 every 3 second.
-  }
+  
+
   
   if (myDFPlayer.available()) {
     printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
