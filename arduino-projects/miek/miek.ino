@@ -5,16 +5,11 @@
 // Constants
 const int rxPinOnTheArduino = 10;
 const int txPinOnTheArduino = 11;
-const int baudRate          = 115200;
-const int myBaudRate        = 9600; // initialize serial communication at 'baudRate' bits per second
-const int volume            = 5;     //Set volume value. From 0 to 30
+const int volume            = 5;      //Set volume value. From 0 to 30
 const int activated         = LOW;
 const int buttonPlaylist01  = 2;      // the number of the pushbutton pin
 const int buttonPlaylist02  = 3;      // the number of the pushbutton pin
 
-// Variables
-int buttonStatePlaylist01   = 0;      // variable for reading the pushbutton status
-int buttonStatePlaylist02   = 0;
 
 SoftwareSerial mySoftwareSerial(rxPinOnTheArduino, txPinOnTheArduino); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
@@ -26,9 +21,6 @@ void setup()
   pinMode(buttonPlaylist01, INPUT_PULLUP);
   pinMode(buttonPlaylist02, INPUT_PULLUP);
   
-  mySoftwareSerial.begin(9600);
-  Serial.begin(baudRate);
-
 //  myDFPlayer.volume(volume);
 //  myDFPlayer.play(1);  //Play the first mp3
 //  myDFPlayer.playFolder(1, 1);
@@ -37,9 +29,7 @@ void setup()
 //  myDFPlayer.loopFolder(1); //loop all mp3 files in folder SD:/05.
 
 
-
   
-
   Serial.println();
   Serial.println(F("DFRobot DFPlayer Mini Demo"));
   Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
@@ -66,7 +56,6 @@ void loop()
     Serial.println("Button 02 pressed");
   }
 
-  
   static unsigned long timer = millis();
   if (millis() - timer > 3000) {
     timer = millis();
