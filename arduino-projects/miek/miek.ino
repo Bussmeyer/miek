@@ -5,7 +5,7 @@
 // Constants
 const int rxPinOnTheArduino = 10;
 const int txPinOnTheArduino = 11;
-const int volume            = 5;      //Set volume value. From 0 to 30
+const int volume            = 2;      //Set volume value. From 0 to 30
 const int activated         = LOW;
 const int buttonPlaylist01  = 2;      // the number of the pushbutton pin
 const int buttonPlaylist02  = 3;      // the number of the pushbutton pin
@@ -20,15 +20,9 @@ void setup()
 {
   pinMode(buttonPlaylist01, INPUT_PULLUP);
   pinMode(buttonPlaylist02, INPUT_PULLUP);
-  
-//  myDFPlayer.volume(volume);
-//  myDFPlayer.play(1);  //Play the first mp3
-//  myDFPlayer.playFolder(1, 1);
-//  myDFPlayer.playFolder(15, 4);  //play specific mp3 in SD:/15/004.mp3; Folder Name(1~99); File Name(1~255)
-//  myDFPlayer.playLargeFolder(2, 999); //play specific mp3 in SD:/02/004.mp3; Folder Name(1~10); File Name(1~1000)
-//  myDFPlayer.loopFolder(1); //loop all mp3 files in folder SD:/05.
 
-
+  mySoftwareSerial.begin(9600);
+  Serial.begin(115200);
   
   Serial.println();
   Serial.println(F("DFRobot DFPlayer Mini Demo"));
