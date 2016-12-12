@@ -15,13 +15,13 @@
   * Wie werden die Lautsprecher befestigt?
 * On/Off
   * USB-Kabel aufschneiden und die stromführenden Kabel an den Kippschalter bringen
-  
+  * USB auf lose Kabeladapter kaufen
 * Buttonanordnung bestimmen
   * 9 Playlists
   * Vor- und Zurück
   * On/Off
   * Lautstärke
-  
+
 ## Shopping List
 * [Arduino/Aukru Redesign Pro Mini atmega328](https://www.amazon.de/gp/product/B01CCY42PK)
 * [USB to TTL converter module with CP2102](https://www.amazon.de/gp/product/B00AFRXKFU)

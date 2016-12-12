@@ -7,17 +7,23 @@ const int rxPinOnTheArduino = 10;
 const int txPinOnTheArduino = 11;
 const int volume            = 2;      //Set volume value. From 0 to 30
 const int activated         = LOW;
-const int buttonPlaylist1  = 2;      // the number of the pushbutton pin
-const int buttonPlaylist2  = 3;      // the number of the pushbutton pin
+const int buttonPlaylist1   = 2;      // the number of the pushbutton pin
+const int buttonPlaylist2   = 3;      // the number of the pushbutton pin
+const int buttonPlaylist3   = 4;
+const int defaultDelay      = 300;    // in miliseconds
 
 
 SoftwareSerial mySoftwareSerial(rxPinOnTheArduino, txPinOnTheArduino); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
 
-int currentFolder = 1;
-int currentSong = 1;
-void printDetail(uint8_t type, int value);
 
+// Variables
+int currentFolder = 0;
+int currentSong = 0;
+int numberOfSongsInFolder1 = 0;
+int numberOfSongsInFolder2 = 0;
+int numberOfSongsInFolder3 = 0;
+void printDetail(uint8_t type, int value);
 
 
 // Functions
@@ -25,6 +31,7 @@ void setup()
 {
   pinMode(buttonPlaylist1, INPUT_PULLUP);
   pinMode(buttonPlaylist2, INPUT_PULLUP);
+  pinMode(buttonPlaylist3, INPUT_PULLUP);
 
   mySoftwareSerial.begin(9600);
   Serial.begin(115200);
@@ -33,7 +40,8 @@ void setup()
   Serial.println(F("DFRobot DFPlayer Mini Demo"));
   Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
   
-  if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
+  if (!myDFPlayer.begin(mySoftwareSerial))
+  {  //Use softwareSerial to communicate with mp3.
     Serial.println(F("Unable to begin:"));
     Serial.println(F("1.Please recheck the connection!"));
     Serial.println(F("2.Please insert the SD card!"));
@@ -44,46 +52,66 @@ void setup()
   myDFPlayer.setTimeOut(500); //Set serial communictaion time out 500ms
   myDFPlayer.volume(volume);  //Set volume value. From 0 to 30
 
-
-
-
   // Check all the different folders
-  int songs1 = myDFPlayer.readFileCountsInFolder(1);
-  int songs2 = myDFPlayer.readFileCountsInFolder(2);
-  int songs3 = myDFPlayer.readFileCountsInFolder(3);
+  numberOfSongsInFolder1 = myDFPlayer.readFileCountsInFolder(1);
+  numberOfSongsInFolder2 = myDFPlayer.readFileCountsInFolder(2);
+  numberOfSongsInFolder3 = myDFPlayer.readFileCountsInFolder(3);
 
   Serial.print(F("Songs in folder 01: "));
-  Serial.println(songs1);
+  Serial.println(numberOfSongsInFolder1);
   Serial.print(F("Songs in folder 02: "));
-  Serial.println(songs2);
+  Serial.println(numberOfSongsInFolder2);
   Serial.print(F("Songs in folder 03: "));
-  Serial.println(songs3);
-
-  
+  Serial.println(numberOfSongsInFolder3); 
 }
 
 void loop()
 {
-  if  (digitalRead(buttonPlaylist1) == activated) {
-    currentFolder = 1;
-    myDFPlayer.playFolder(currentFolder, 2);
-    Serial.println("Button 01 pressed");
-    Serial.println(myDFPlayer.readCurrentFileNumber());
+  if  (digitalRead(buttonPlaylist1) == activated)
+  {
+    Serial.println("Button 1 pressed");
+    playSongsInFolder(1, numberOfSongsInFolder1);
   }
 
-  if  (digitalRead(buttonPlaylist2) == activated) {
-    Serial.println("Button 02 pressed");
-    currentFolder = 2;
-    myDFPlayer.playFolder(currentFolder, 1);
-    Serial.println(myDFPlayer.readCurrentFileNumber());
+  if  (digitalRead(buttonPlaylist2) == activated)
+  {
+    Serial.println("Button 2 pressed");
+    playSongsInFolder(2, numberOfSongsInFolder2);
   }
 
-  if (myDFPlayer.available()) {
+  if  (digitalRead(buttonPlaylist3) == activated)
+  {
+    Serial.println("Button 3 pressed");
+    myDFPlayer.stop();
+    delay(defaultDelay);
+  }
+
+  if (myDFPlayer.available())
+  {
     printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
   }
 }
 
-void printDetail(uint8_t type, int value){
+void playSongsInFolder(int folder, int numberOfSongsInFolder)
+{
+  Serial.print("Current folder/song: "); Serial.print(currentFolder); Serial.print("/"); Serial.println(currentSong);
+  
+  if (currentFolder == folder && currentSong < numberOfSongsInFolder)
+  {
+    currentSong = currentSong + 1;
+  }
+  else
+  {
+    currentFolder = folder;
+    currentSong = 1;
+  }
+  myDFPlayer.playFolder(currentFolder, currentSong);
+  delay(defaultDelay);
+  Serial.print("Next folder/song: "); Serial.print(currentFolder); Serial.print("/"); Serial.println(currentSong);
+}
+
+void printDetail(uint8_t type, int value)
+{
   switch (type) {
     case TimeOut:
       Serial.println(F("Time Out!"));
@@ -136,6 +164,5 @@ void printDetail(uint8_t type, int value){
     default:
       break;
   }
-
 }
 
