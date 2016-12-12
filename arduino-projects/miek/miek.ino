@@ -94,8 +94,9 @@ void loop()
 
 void playSongsInFolder(int folder, int numberOfSongsInFolder)
 {
-  Serial.print("Current folder/song: "); Serial.print(currentFolder); Serial.print("/"); Serial.println(currentSong);
-  
+  Serial.print(F("Current folder/song: "));
+  Serial.print(currentFolder); Serial.print(F("/")); Serial.println(currentSong);
+
   if (currentFolder == folder && currentSong < numberOfSongsInFolder)
   {
     currentSong = currentSong + 1;
@@ -105,9 +106,12 @@ void playSongsInFolder(int folder, int numberOfSongsInFolder)
     currentFolder = folder;
     currentSong = 1;
   }
+
   myDFPlayer.playFolder(currentFolder, currentSong);
   delay(defaultDelay);
-  Serial.print("Next folder/song: "); Serial.print(currentFolder); Serial.print("/"); Serial.println(currentSong);
+
+  Serial.print(F("Next folder/song: "));
+  Serial.print(currentFolder); Serial.print(F("/")); Serial.println(currentSong);
 }
 
 void printDetail(uint8_t type, int value)
