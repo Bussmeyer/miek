@@ -64,10 +64,9 @@ void setup()
 
 void loop()
 {
-
   if  (digitalRead(buttonPlaylist1) == activated) {
     currentFolder = 1;
-    myDFPlayer.playLargeFolder(currentFolder, 1);
+    myDFPlayer.playFolder(currentFolder, 2);
     Serial.println("Button 01 pressed");
     Serial.println(myDFPlayer.readCurrentFileNumber());
   }
@@ -75,13 +74,10 @@ void loop()
   if  (digitalRead(buttonPlaylist2) == activated) {
     Serial.println("Button 02 pressed");
     currentFolder = 2;
-    myDFPlayer.playLargeFolder(currentFolder, 1);
+    myDFPlayer.playFolder(currentFolder, 1);
     Serial.println(myDFPlayer.readCurrentFileNumber());
   }
 
-  
-
-  
   if (myDFPlayer.available()) {
     printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
   }
